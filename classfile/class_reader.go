@@ -35,3 +35,15 @@ func (self *ClassReader) ReadUint32() uint32 {
 	self.bytecode = self.bytecode[4:]
 	return val
 }
+
+func (self *ClassReader) ReadBytes(length uint32) []byte {
+	bytes := self.bytecode[:length]
+	self.bytecode = self.bytecode[length:]
+	return bytes
+}
+
+func (self *ClassReader) ReadString() string {
+	length := uint32(self.ReadUint16())
+	bytes := self.ReadBytes(length)
+	return string(bytes)
+}
