@@ -63,4 +63,32 @@ func main() {
 			fmt.Println("error")
 		}
 	}
+	fmt.Printf("accessFlags: %x\n", reader.ReadUint16())
+	fmt.Printf("this class: #%d\n", reader.ReadUint16())
+	fmt.Printf("super class: #%d\n", reader.ReadUint16())
+
+	interfaceCount := int(reader.ReadUint16())
+	for i := 0; i < interfaceCount; i++ {
+		fmt.Printf("interface: #%d\n", reader.ReadUint16())
+	}
+
+	fields_count := int(reader.ReadUint16())
+	for i := 0; i < fields_count; i++ {
+		fmt.Printf("field accessFlags: %d\t\t", reader.ReadUint16())
+		fmt.Printf("field #%d:#%d\t", reader.ReadUint16(), reader.ReadUint16())
+		fmt.Printf("field attribute_count: %d\n", reader.ReadUint16())
+	}
+
+	method_count := int(reader.ReadUint16())
+	for i := 0; i < method_count; i++ {
+		fmt.Printf("method accessFlags: %d\t\t", reader.ReadUint16())
+		fmt.Printf("method #%d.#%d\t", reader.ReadUint16(), reader.ReadUint16())
+		attrbutes_count := int(reader.ReadUint16())
+		for j := 0; j< attrbutes_count;j++{
+			fmt.Printf("method: %d\t\t", reader.ReadUint16())
+			fmt.Printf("method attr_info: %x\n", string(reader.ReadBytes(reader.ReadUint32())))
+		}
+	}
+
+	// todo attribute_info
 }
