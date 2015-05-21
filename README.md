@@ -1,2 +1,2 @@
-# classParser
-Java class file parser
+# class-parser
+Java class file parser for analysis
