@@ -56,7 +56,7 @@ func (this *ClassFile) Read(reader *ClassReader) {
 	this.readInterfaces(reader)
 	this.readFieldInfo(reader)
 	this.readMethodInfo(reader)
-	readAttributeInfo(reader)
+	this.readAttributes(reader)
 }
 
 func (this *ClassFile) readMagic(reader *ClassReader) uint32 {
@@ -176,12 +176,20 @@ func (this *ClassFile) readFieldInfo(reader *ClassReader) {
 }
 
 func (this *ClassFile) readMethodInfo(reader *ClassReader) {
-	var methodsCount = reader.ReadUint16()
+	methodsCount := reader.ReadUint16()
 	this.methods = make([]methodInfo, methodsCount)
 	for i := uint16(0); i < methodsCount; i++ {
 		methodInfo := methodInfo{classFile: this}
 		methodInfo.ReadInfo(reader)
 		this.methods[i] = methodInfo
+	}
+}
+
+func (this *ClassFile) readAttributes(reader *ClassReader) {
+	attributesCount := reader.ReadUint16()
+	this.attributes = make([]AttributeInfo, attributesCount)
+	for i := uint16(0); i < attributesCount; i++ {
+		readAttributeInfo(reader)
 	}
 }
 
@@ -257,8 +265,10 @@ func readAttributeInfo(reader *ClassReader) {
 		attribute := LineNumberTableAttribute{}
 		attribute.ReadInfo(reader)
 		fmt.Printf("LineNumberTable ending....\t\t#%d\n", attributeNameIndex)
+	} else if attributeNameIndex == uint16(31) {
+		//TODO add SourceFile attribute
+		fmt.Printf("SourceFile attribute\t\t#%d\n", attributeNameIndex)
 	} else {
 		fmt.Printf("Not a Code attribute\t\t#%d\n", attributeNameIndex)
-
 	}
 }
