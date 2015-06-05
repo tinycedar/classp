@@ -1,17 +1,21 @@
 public class Sample implements Runnable{
+    private String name;
 
-    private int i;
-    private long l;
-    private float f;
-    private double d;
+    public String getName(){
+        return this.name;
+    }
 
-    @Override
+    public void setName(String name){
+        this.name = name;
+    }
+
     public void run(){
-        f = i + l;
+        
     }
 
     public static void main(String[] args){
-        String str = "Welcome";
-        System.out.println(str);
+        Sample sample = new Sample();
+        sample.setName("Daniel");
+        System.out.println("Hello " + sample.getName() + " !");
     }
 }

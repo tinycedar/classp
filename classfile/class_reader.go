@@ -10,40 +10,32 @@ type ClassReader struct {
 	bytecode []byte
 }
 
-func NewClassReader(bytes []byte) *ClassReader {
-	return &ClassReader{bytes}
+func NewClassReader(bytecode []byte) *ClassReader {
+	return &ClassReader{bytecode: bytecode}
 }
 
-func (self *ClassReader) Length() int {
-	return len(self.bytecode)
+func (this *ClassReader) ReadUint32() uint32 {
+	value := bigEndian.Uint32(this.bytecode[:4])
+	this.bytecode = this.bytecode[4:]
+	return value
 }
 
-func (self *ClassReader) ReadUint8() uint8 {
-	val := self.bytecode[0]
-	self.bytecode = self.bytecode[1:]
-	return val
+func (this *ClassReader) ReadUint16() uint16 {
+	value := bigEndian.Uint16(this.bytecode[:2])
+	this.bytecode = this.bytecode[2:]
+	return value
 }
 
-func (self *ClassReader) ReadUint16() uint16 {
-	val := bigEndian.Uint16(self.bytecode)
-	self.bytecode = self.bytecode[2:]
-	return val
+func (this *ClassReader) ReadUint8() uint8 {
+	return uint8(this.ReadBytes(1)[0])
 }
 
-func (self *ClassReader) ReadUint32() uint32 {
-	val := bigEndian.Uint32(self.bytecode)
-	self.bytecode = self.bytecode[4:]
-	return val
-}
-
-func (self *ClassReader) ReadBytes(length uint32) []byte {
-	bytes := self.bytecode[:length]
-	self.bytecode = self.bytecode[length:]
+func (this *ClassReader) ReadBytes(len int) []byte {
+	bytes := this.bytecode[:len]
+	this.bytecode = this.bytecode[len:]
 	return bytes
 }
 
-func (self *ClassReader) ReadString() string {
-	length := uint32(self.ReadUint16())
-	bytes := self.ReadBytes(length)
-	return string(bytes)
+func (this *ClassReader) Length() int {
+	return len(this.bytecode)
 }
