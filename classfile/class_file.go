@@ -25,6 +25,7 @@ ClassFile {
 }
 */
 type ClassFile struct {
+	size 	     int
 	magic        uint32
 	minorVersion uint16
 	majorVersion uint16
@@ -43,32 +44,39 @@ func NewClassFile() *ClassFile {
 }
 
 func (this *ClassFile) Read(reader *ClassReader) {
-	fmt.Printf("Size: %d bytes\n", reader.Length())
-	fmt.Printf("magic: %x\n", this.readMagic(reader))
-	fmt.Printf("minor version: %d\n", this.readMinorVersion(reader))
-	fmt.Printf("major version: %d\n", this.readMajorVersion(reader))
+	this.size = reader.Length()
+	this.readMagic(reader)
+	this.readMinorVersion(reader)
+	this.readMajorVersion(reader)
 
-	// fmt.Printf("bytes: %d\n", reader.ReadBytes(2))
+	fmt.Printf("Size: %d bytes\n", this.size)
+	fmt.Printf("magic: %x\n", this.magic)
+	fmt.Printf("minor version: %d\n", this.minorVersion)
+	fmt.Printf("major version: %d\n", this.majorVersion)
+
 	this.readConstantPool(reader)
-	fmt.Printf("accessFlags: %d\n", this.readAccessFlags(reader))
-	fmt.Printf("thisClass: #%d\n", this.readThisClass(reader))
-	fmt.Printf("superClass: #%d\n", this.readSuperClass(reader))
+	this.readAccessFlags(reader)
+	this.readThisClass(reader)
+	this.readSuperClass(reader)
+	fmt.Printf("accessFlags: %d\n", this.accessFlags)
+	fmt.Printf("thisClass: #%d\n", this.thisClass)
+	fmt.Printf("superClass: #%d\n", this.superClass)
 	this.readInterfaces(reader)
 	this.readFieldInfo(reader)
 	this.readMethodInfo(reader)
 	this.readAttributes(reader)
 }
 
-func (this *ClassFile) readMagic(reader *ClassReader) uint32 {
-	return reader.ReadUint32()
+func (this *ClassFile) readMagic(reader *ClassReader) {
+	this.magic = reader.ReadUint32()
 }
 
-func (this *ClassFile) readMinorVersion(reader *ClassReader) uint16 {
-	return reader.ReadUint16()
+func (this *ClassFile) readMinorVersion(reader *ClassReader) {
+	this.minorVersion = reader.ReadUint16()
 }
 
-func (this *ClassFile) readMajorVersion(reader *ClassReader) uint16 {
-	return reader.ReadUint16()
+func (this *ClassFile) readMajorVersion(reader *ClassReader) {
+	this.majorVersion = reader.ReadUint16()
 }
 
 func (this *ClassFile) readConstantPool(reader *ClassReader) {
@@ -140,19 +148,16 @@ func (this *ClassFile) readConstantPool(reader *ClassReader) {
 	}
 }
 
-func (this *ClassFile) readAccessFlags(reader *ClassReader) uint16 {
+func (this *ClassFile) readAccessFlags(reader *ClassReader) {
 	this.accessFlags = reader.ReadUint16()
-	return this.accessFlags
 }
 
-func (this *ClassFile) readThisClass(reader *ClassReader) uint16 {
+func (this *ClassFile) readThisClass(reader *ClassReader) {
 	this.thisClass = reader.ReadUint16()
-	return this.thisClass
 }
 
-func (this *ClassFile) readSuperClass(reader *ClassReader) uint16 {
+func (this *ClassFile) readSuperClass(reader *ClassReader) {
 	this.superClass = reader.ReadUint16()
-	return this.superClass
 }
 
 func (this *ClassFile) readInterfaces(reader *ClassReader) {
