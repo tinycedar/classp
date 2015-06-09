@@ -48,23 +48,25 @@ func (this *ClassFile) Read(reader *ClassReader) {
 	this.readMagic(reader)
 	this.readMinorVersion(reader)
 	this.readMajorVersion(reader)
+	this.readConstantPool(reader)
+	this.readAccessFlags(reader)
+	this.readThisClass(reader)
+	this.readSuperClass(reader)
+	this.readInterfaces(reader)
+	this.readFieldInfo(reader)
+	this.readMethodInfo(reader)
+	this.readAttributes(reader)
+}
 
+func (this *ClassFile) Print(){
 	fmt.Printf("Size: %d bytes\n", this.size)
 	fmt.Printf("magic: %x\n", this.magic)
 	fmt.Printf("minor version: %d\n", this.minorVersion)
 	fmt.Printf("major version: %d\n", this.majorVersion)
 
-	this.readConstantPool(reader)
-	this.readAccessFlags(reader)
-	this.readThisClass(reader)
-	this.readSuperClass(reader)
 	fmt.Printf("accessFlags: %d\n", this.accessFlags)
 	fmt.Printf("thisClass: #%d\n", this.thisClass)
 	fmt.Printf("superClass: #%d\n", this.superClass)
-	this.readInterfaces(reader)
-	this.readFieldInfo(reader)
-	this.readMethodInfo(reader)
-	this.readAttributes(reader)
 }
 
 func (this *ClassFile) readMagic(reader *ClassReader) {

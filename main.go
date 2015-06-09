@@ -14,4 +14,5 @@ func main() {
 
 	cf := classfile.NewClassFile()
 	cf.Read(classfile.NewClassReader(bytes))
+	cf.Print()
 }
