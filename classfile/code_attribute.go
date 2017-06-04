@@ -1,7 +1,7 @@
 package classfile
 
 import (
-// "fmt"
+ "fmt"
 )
 
 /*
@@ -47,6 +47,7 @@ func (this *CodeAttribute) ReadInfo(reader *ClassReader) {
 	this.maxStack = reader.ReadUint16()
 	this.maxLocals = reader.ReadUint16()
 	this.code = reader.ReadBytes(int(reader.ReadUint32()))
+	parseCode(this.code)
 	exceptionTableLength := reader.ReadUint16()
 	this.exceptions = make([]exceptionTable, exceptionTableLength)
 	for i := uint16(0); i < exceptionTableLength; i++ {
@@ -59,6 +60,37 @@ func (this *CodeAttribute) ReadInfo(reader *ClassReader) {
 		// fmt.Printf("attributes in attributes.....%d\n", reader.ReadUint16())
 		readAttributeInfo(reader)
 	}
+}
+
+func parseCode(code []uint8) {
+	fmt.Printf("code: %v\n", code)
+	for _, c := range code {
+		switch c {
+		case 0x2a:
+			fmt.Printf("%v, ", "aload_0")
+		case 0x2b:
+			fmt.Printf("%v, ", "aload_1")
+		case 0xb7:
+			fmt.Printf("%v, ", "invokespecial")
+		case 0x0:
+			fmt.Printf("%v, ", "nop")
+		case 0x1:
+			fmt.Printf("%v, ", "aconst_null")
+		case 0x2:
+			fmt.Printf("%v, ", "iconst_m1")
+		case 0xb1:
+			fmt.Printf("%v, ", "return")
+		case 176:
+			fmt.Printf("%v, ", "areturn")
+		case 180:
+			fmt.Printf("%v, ", "getfield")
+		case 181:
+			fmt.Printf("%v, ", "putfield")
+		default:
+			fmt.Printf("%v, ", "invalid opcode")
+		}
+	}
+	fmt.Println()
 }
 
 type exceptionTable struct {
