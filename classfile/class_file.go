@@ -43,158 +43,158 @@ func NewClassFile() *ClassFile {
 	return &ClassFile{}
 }
 
-func (this *ClassFile) Read(reader *ClassReader) {
-	this.size = reader.Length()
-	this.readMagic(reader)
-	this.readMinorVersion(reader)
-	this.readMajorVersion(reader)
-	this.readConstantPool(reader)
-	this.readAccessFlags(reader)
-	this.readThisClass(reader)
-	this.readSuperClass(reader)
-	this.readInterfaces(reader)
-	this.readFieldInfo(reader)
-	this.readMethodInfo(reader)
-	this.readAttributes(reader)
+func (cf *ClassFile) Read(reader *ClassReader) {
+	cf.size = reader.Length()
+	cf.readMagic(reader)
+	cf.readMinorVersion(reader)
+	cf.readMajorVersion(reader)
+	cf.readConstantPool(reader)
+	cf.readAccessFlags(reader)
+	cf.readThisClass(reader)
+	cf.readSuperClass(reader)
+	cf.readInterfaces(reader)
+	cf.readFieldInfo(reader)
+	cf.readMethodInfo(reader)
+	cf.readAttributes(reader)
 }
 
-func (this *ClassFile) Print(){
-	fmt.Printf("Size: %d bytes\n", this.size)
-	fmt.Printf("magic: %x\n", this.magic)
-	fmt.Printf("minor version: %d\n", this.minorVersion)
-	fmt.Printf("major version: %d\n", this.majorVersion)
+func (cf *ClassFile) Print(){
+	fmt.Printf("Size: %d bytes\n", cf.size)
+	fmt.Printf("magic: %x\n", cf.magic)
+	fmt.Printf("minor version: %d\n", cf.minorVersion)
+	fmt.Printf("major version: %d\n", cf.majorVersion)
 
-	fmt.Printf("accessFlags: %d\n", this.accessFlags)
-	fmt.Printf("thisClass: #%d\n", this.thisClass)
-	fmt.Printf("superClass: #%d\n", this.superClass)
+	fmt.Printf("accessFlags: %d\n", cf.accessFlags)
+	fmt.Printf("thisClass: #%d\n", cf.thisClass)
+	fmt.Printf("superClass: #%d\n", cf.superClass)
 }
 
-func (this *ClassFile) readMagic(reader *ClassReader) {
-	this.magic = reader.ReadUint32()
+func (cf *ClassFile) readMagic(reader *ClassReader) {
+	cf.magic = reader.ReadUint32()
 }
 
-func (this *ClassFile) readMinorVersion(reader *ClassReader) {
-	this.minorVersion = reader.ReadUint16()
+func (cf *ClassFile) readMinorVersion(reader *ClassReader) {
+	cf.minorVersion = reader.ReadUint16()
 }
 
-func (this *ClassFile) readMajorVersion(reader *ClassReader) {
-	this.majorVersion = reader.ReadUint16()
+func (cf *ClassFile) readMajorVersion(reader *ClassReader) {
+	cf.majorVersion = reader.ReadUint16()
 }
 
-func (this *ClassFile) readConstantPool(reader *ClassReader) {
+func (cf *ClassFile) readConstantPool(reader *ClassReader) {
 	cpInfoCount := reader.ReadUint16()
 	fmt.Printf("cp_info count: %d\n", cpInfoCount)
-	this.constantPool = make([]ConstantPoolInfo, cpInfoCount)
+	cf.constantPool = make([]ConstantPoolInfo, cpInfoCount)
 	for i := uint16(1); i < cpInfoCount; i++ {
 		fmt.Printf(" #%2d = ", i)
 		switch reader.ReadUint8() {
 		case CONSTANT_Class:
 			cpInfo := &ConstantClassInfo{}
 			cpInfo.ReadInfo(reader)
-			this.constantPool[i] = cpInfo
+			cf.constantPool[i] = cpInfo
 		case CONSTANT_Fieldref:
 			cpInfo := &ConstantFieldrefInfo{}
 			cpInfo.ReadInfo(reader)
-			this.constantPool[i] = cpInfo
+			cf.constantPool[i] = cpInfo
 		case CONSTANT_Methodref:
 			cpInfo := &ConstantMethodrefInfo{}
 			cpInfo.ReadInfo(reader)
-			this.constantPool[i] = cpInfo
+			cf.constantPool[i] = cpInfo
 		case CONSTANT_InterfaceMethodref:
 			cpInfo := &ConstantInterfaceMethodrefInfo{}
 			cpInfo.ReadInfo(reader)
-			this.constantPool[i] = cpInfo
+			cf.constantPool[i] = cpInfo
 		case CONSTANT_String:
 			cpInfo := &ConstantStringInfo{}
 			cpInfo.ReadInfo(reader)
-			this.constantPool[i] = cpInfo
+			cf.constantPool[i] = cpInfo
 		case CONSTANT_Integer:
 			cpInfo := &ConstantIntegerInfo{}
 			cpInfo.ReadInfo(reader)
-			this.constantPool[i] = cpInfo
+			cf.constantPool[i] = cpInfo
 		case CONSTANT_Float:
 			cpInfo := &ConstantFloatInfo{}
 			cpInfo.ReadInfo(reader)
-			this.constantPool[i] = cpInfo
+			cf.constantPool[i] = cpInfo
 		case CONSTANT_Long:
 			cpInfo := &ConstantLongInfo{}
 			cpInfo.ReadInfo(reader)
-			this.constantPool[i] = cpInfo
+			cf.constantPool[i] = cpInfo
 		case CONSTANT_Double:
 			cpInfo := &ConstantDoubleInfo{}
 			cpInfo.ReadInfo(reader)
-			this.constantPool[i] = cpInfo
+			cf.constantPool[i] = cpInfo
 		case CONSTANT_NameAndType:
 			cpInfo := &ConstantNameAndTypeInfo{}
 			cpInfo.ReadInfo(reader)
-			this.constantPool[i] = cpInfo
+			cf.constantPool[i] = cpInfo
 		case CONSTANT_Utf8:
 			cpInfo := &ConstantUtf8Info{}
 			cpInfo.ReadInfo(reader)
-			this.constantPool[i] = cpInfo
+			cf.constantPool[i] = cpInfo
 		case CONSTANT_MethodHandle:
 			cpInfo := &ConstantMethodHandleInfo{}
 			cpInfo.ReadInfo(reader)
-			this.constantPool[i] = cpInfo
+			cf.constantPool[i] = cpInfo
 		case CONSTANT_MethodType:
 			cpInfo := &ConstantMethodTypeInfo{}
 			cpInfo.ReadInfo(reader)
-			this.constantPool[i] = cpInfo
+			cf.constantPool[i] = cpInfo
 		case CONSTANT_InvokeDynamic:
 			cpInfo := &ConstantInvokeDynamicInfo{}
 			cpInfo.ReadInfo(reader)
-			this.constantPool[i] = cpInfo
+			cf.constantPool[i] = cpInfo
 		default:
 			fmt.Println()
 		}
 	}
 }
 
-func (this *ClassFile) readAccessFlags(reader *ClassReader) {
-	this.accessFlags = reader.ReadUint16()
+func (cf *ClassFile) readAccessFlags(reader *ClassReader) {
+	cf.accessFlags = reader.ReadUint16()
 }
 
-func (this *ClassFile) readThisClass(reader *ClassReader) {
-	this.thisClass = reader.ReadUint16()
+func (cf *ClassFile) readThisClass(reader *ClassReader) {
+	cf.thisClass = reader.ReadUint16()
 }
 
-func (this *ClassFile) readSuperClass(reader *ClassReader) {
-	this.superClass = reader.ReadUint16()
+func (cf *ClassFile) readSuperClass(reader *ClassReader) {
+	cf.superClass = reader.ReadUint16()
 }
 
-func (this *ClassFile) readInterfaces(reader *ClassReader) {
+func (cf *ClassFile) readInterfaces(reader *ClassReader) {
 	var interfacesCount = reader.ReadUint16()
-	this.interfaces = make([]uint16, interfacesCount)
+	cf.interfaces = make([]uint16, interfacesCount)
 	for i := uint16(0); i < interfacesCount; i++ {
-		this.interfaces[i] = reader.ReadUint16()
+		cf.interfaces[i] = reader.ReadUint16()
 
-		fmt.Printf("interface: #%d\n", this.interfaces[i])
+		fmt.Printf("interface: #%d\n", cf.interfaces[i])
 	}
 }
 
-func (this *ClassFile) readFieldInfo(reader *ClassReader) {
+func (cf *ClassFile) readFieldInfo(reader *ClassReader) {
 	var fieldsCount = reader.ReadUint16()
-	this.fields = make([]fieldInfo, fieldsCount)
+	cf.fields = make([]fieldInfo, fieldsCount)
 	for i := uint16(0); i < fieldsCount; i++ {
 		fieldInfo := fieldInfo{}
 		fieldInfo.ReadInfo(reader)
-		this.fields[i] = fieldInfo
+		cf.fields[i] = fieldInfo
 	}
 }
 
-func (this *ClassFile) readMethodInfo(reader *ClassReader) {
+func (cf *ClassFile) readMethodInfo(reader *ClassReader) {
 	methodsCount := reader.ReadUint16()
-	this.methods = make([]methodInfo, methodsCount)
+	cf.methods = make([]methodInfo, methodsCount)
 	for i := uint16(0); i < methodsCount; i++ {
-		methodInfo := methodInfo{classFile: this}
+		methodInfo := methodInfo{classFile: cf}
 		methodInfo.ReadInfo(reader)
-		this.methods[i] = methodInfo
+		cf.methods[i] = methodInfo
 	}
 }
 
-func (this *ClassFile) readAttributes(reader *ClassReader) {
+func (cf *ClassFile) readAttributes(reader *ClassReader) {
 	attributesCount := reader.ReadUint16()
-	this.attributes = make([]AttributeInfo, attributesCount)
+	cf.attributes = make([]AttributeInfo, attributesCount)
 	for i := uint16(0); i < attributesCount; i++ {
 		readAttributeInfo(reader)
 	}
@@ -216,17 +216,17 @@ type fieldInfo struct {
 	attributes      []AttributeInfo
 }
 
-func (this *fieldInfo) ReadInfo(reader *ClassReader) {
-	this.accessFlags = reader.ReadUint16()
-	this.nameIndex = reader.ReadUint16()
-	this.descriptorIndex = reader.ReadUint16()
-	fmt.Printf("================= FieldInfo start ==========================\t\t#%d\n", this.nameIndex)
+func (f *fieldInfo) ReadInfo(reader *ClassReader) {
+	f.accessFlags = reader.ReadUint16()
+	f.nameIndex = reader.ReadUint16()
+	f.descriptorIndex = reader.ReadUint16()
+	fmt.Printf("================= FieldInfo start ==========================\t\t#%d\n", f.nameIndex)
 	var attributesCount = reader.ReadUint16()
-	this.attributes = make([]AttributeInfo, attributesCount)
+	f.attributes = make([]AttributeInfo, attributesCount)
 	for i := uint16(0); i < attributesCount; i++ {
 		readAttributeInfo(reader)
 	}
-	fmt.Printf("================= FieldInfo end ==========================\t\t#%d\n", this.nameIndex)
+	fmt.Printf("================= FieldInfo end ==========================\t\t#%d\n", f.nameIndex)
 }
 
 /*
@@ -246,17 +246,17 @@ type methodInfo struct {
 	attributes      []AttributeInfo
 }
 
-func (this *methodInfo) ReadInfo(reader *ClassReader) {
-	this.accessFlags = reader.ReadUint16()
-	this.nameIndex = reader.ReadUint16()
-	this.descriptorIndex = reader.ReadUint16()
+func (m *methodInfo) ReadInfo(reader *ClassReader) {
+	m.accessFlags = reader.ReadUint16()
+	m.nameIndex = reader.ReadUint16()
+	m.descriptorIndex = reader.ReadUint16()
 	var attributesCount = reader.ReadUint16()
-	this.attributes = make([]AttributeInfo, attributesCount)
-	fmt.Printf("================= MethodInfo start ==========================\t\t#%d\n", this.nameIndex)
+	m.attributes = make([]AttributeInfo, attributesCount)
+	fmt.Printf("================= MethodInfo start ==========================\t\t#%d\n", m.nameIndex)
 	for i := uint16(0); i < attributesCount; i++ {
 		readAttributeInfo(reader)
 	}
-	fmt.Printf("================= MethodInfo end   ==========================\t\t#%d\n", this.nameIndex)
+	fmt.Printf("================= MethodInfo end   ==========================\t\t#%d\n", m.nameIndex)
 }
 
 func readAttributeInfo(reader *ClassReader) {

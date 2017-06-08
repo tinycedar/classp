@@ -1,69 +1,72 @@
-Classfile /d:/go/src/github.com/tinycedar/class-parser/test/Sample.class
-  Last modified 2015-5-29; size 806 bytes
-  MD5 checksum bb89989ac927e869edde2d44da941d14
+Classfile /Users/daniel/go/src/github.com/tinycedar/class-parser/test/Sample.class
+  Last modified Jun 8, 2017; size 877 bytes
+  MD5 checksum 9f5ad585aeec00d459cf4a12ee7413b7
   Compiled from "Sample.java"
-public class Sample
-  SourceFile: "Sample.java"
+public class Sample implements java.lang.Runnable
   minor version: 0
-  major version: 51
+  major version: 52
   flags: ACC_PUBLIC, ACC_SUPER
 Constant pool:
-   #1 = Methodref          #16.#31        //  java/lang/Object."<init>":()V
-   #2 = Fieldref           #3.#32         //  Sample.name:Ljava/lang/String;
-   #3 = Class              #33            //  Sample
-   #4 = Methodref          #3.#31         //  Sample."<init>":()V
-   #5 = String             #34            //  Daniel
-   #6 = Methodref          #3.#35         //  Sample.setName:(Ljava/lang/String;)V
-   #7 = Fieldref           #36.#37        //  java/lang/System.out:Ljava/io/PrintStream;
-   #8 = Class              #38            //  java/lang/StringBuilder
-   #9 = Methodref          #8.#31         //  java/lang/StringBuilder."<init>":()V
-  #10 = String             #39            //  Hello
-  #11 = Methodref          #8.#40         //  java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
-  #12 = Methodref          #3.#41         //  Sample.getName:()Ljava/lang/String;
-  #13 = String             #42            //   !
-  #14 = Methodref          #8.#43         //  java/lang/StringBuilder.toString:()Ljava/lang/String;
-  #15 = Methodref          #44.#45        //  java/io/PrintStream.println:(Ljava/lang/String;)V
-  #16 = Class              #46            //  java/lang/Object
-  #17 = Utf8               name
-  #18 = Utf8               Ljava/lang/String;
-  #19 = Utf8               <init>
-  #20 = Utf8               ()V
-  #21 = Utf8               Code
-  #22 = Utf8               LineNumberTable
-  #23 = Utf8               getName
-  #24 = Utf8               ()Ljava/lang/String;
-  #25 = Utf8               setName
-  #26 = Utf8               (Ljava/lang/String;)V
-  #27 = Utf8               main
-  #28 = Utf8               ([Ljava/lang/String;)V
-  #29 = Utf8               SourceFile
-  #30 = Utf8               Sample.java
-  #31 = NameAndType        #19:#20        //  "<init>":()V
-  #32 = NameAndType        #17:#18        //  name:Ljava/lang/String;
-  #33 = Utf8               Sample
-  #34 = Utf8               Daniel
-  #35 = NameAndType        #25:#26        //  setName:(Ljava/lang/String;)V
-  #36 = Class              #47            //  java/lang/System
-  #37 = NameAndType        #48:#49        //  out:Ljava/io/PrintStream;
-  #38 = Utf8               java/lang/StringBuilder
-  #39 = Utf8               Hello
-  #40 = NameAndType        #50:#51        //  append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
-  #41 = NameAndType        #23:#24        //  getName:()Ljava/lang/String;
-  #42 = Utf8                !
-  #43 = NameAndType        #52:#24        //  toString:()Ljava/lang/String;
-  #44 = Class              #53            //  java/io/PrintStream
-  #45 = NameAndType        #54:#26        //  println:(Ljava/lang/String;)V
-  #46 = Utf8               java/lang/Object
-  #47 = Utf8               java/lang/System
-  #48 = Utf8               out
-  #49 = Utf8               Ljava/io/PrintStream;
-  #50 = Utf8               append
-  #51 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuilder;
-  #52 = Utf8               toString
-  #53 = Utf8               java/io/PrintStream
-  #54 = Utf8               println
+   #1 = Methodref          #16.#33        // java/lang/Object."<init>":()V
+   #2 = Fieldref           #3.#34         // Sample.name:Ljava/lang/String;
+   #3 = Class              #35            // Sample
+   #4 = Methodref          #3.#33         // Sample."<init>":()V
+   #5 = String             #36            // Daniel
+   #6 = Methodref          #3.#37         // Sample.setName:(Ljava/lang/String;)V
+   #7 = Fieldref           #38.#39        // java/lang/System.out:Ljava/io/PrintStream;
+   #8 = Class              #40            // java/lang/StringBuilder
+   #9 = Methodref          #8.#33         // java/lang/StringBuilder."<init>":()V
+  #10 = String             #41            // Hello
+  #11 = Methodref          #8.#42         // java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+  #12 = Methodref          #3.#43         // Sample.getName:()Ljava/lang/String;
+  #13 = String             #44            //  !
+  #14 = Methodref          #8.#45         // java/lang/StringBuilder.toString:()Ljava/lang/String;
+  #15 = Methodref          #46.#47        // java/io/PrintStream.println:(Ljava/lang/String;)V
+  #16 = Class              #48            // java/lang/Object
+  #17 = Class              #49            // java/lang/Runnable
+  #18 = Utf8               name
+  #19 = Utf8               Ljava/lang/String;
+  #20 = Utf8               <init>
+  #21 = Utf8               ()V
+  #22 = Utf8               Code
+  #23 = Utf8               LineNumberTable
+  #24 = Utf8               getName
+  #25 = Utf8               ()Ljava/lang/String;
+  #26 = Utf8               setName
+  #27 = Utf8               (Ljava/lang/String;)V
+  #28 = Utf8               run
+  #29 = Utf8               main
+  #30 = Utf8               ([Ljava/lang/String;)V
+  #31 = Utf8               SourceFile
+  #32 = Utf8               Sample.java
+  #33 = NameAndType        #20:#21        // "<init>":()V
+  #34 = NameAndType        #18:#19        // name:Ljava/lang/String;
+  #35 = Utf8               Sample
+  #36 = Utf8               Daniel
+  #37 = NameAndType        #26:#27        // setName:(Ljava/lang/String;)V
+  #38 = Class              #50            // java/lang/System
+  #39 = NameAndType        #51:#52        // out:Ljava/io/PrintStream;
+  #40 = Utf8               java/lang/StringBuilder
+  #41 = Utf8               Hello
+  #42 = NameAndType        #53:#54        // append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+  #43 = NameAndType        #24:#25        // getName:()Ljava/lang/String;
+  #44 = Utf8                !
+  #45 = NameAndType        #55:#25        // toString:()Ljava/lang/String;
+  #46 = Class              #56            // java/io/PrintStream
+  #47 = NameAndType        #57:#27        // println:(Ljava/lang/String;)V
+  #48 = Utf8               java/lang/Object
+  #49 = Utf8               java/lang/Runnable
+  #50 = Utf8               java/lang/System
+  #51 = Utf8               out
+  #52 = Utf8               Ljava/io/PrintStream;
+  #53 = Utf8               append
+  #54 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuilder;
+  #55 = Utf8               toString
+  #56 = Utf8               java/io/PrintStream
+  #57 = Utf8               println
 {
   public Sample();
+    descriptor: ()V
     flags: ACC_PUBLIC
     Code:
       stack=1, locals=1, args_size=1
@@ -74,6 +77,7 @@ Constant pool:
         line 1: 0
 
   public java.lang.String getName();
+    descriptor: ()Ljava/lang/String;
     flags: ACC_PUBLIC
     Code:
       stack=1, locals=1, args_size=1
@@ -84,6 +88,7 @@ Constant pool:
         line 5: 0
 
   public void setName(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
     flags: ACC_PUBLIC
     Code:
       stack=2, locals=2, args_size=2
@@ -95,7 +100,17 @@ Constant pool:
         line 9: 0
         line 10: 5
 
+  public void run();
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=0, locals=1, args_size=1
+         0: return
+      LineNumberTable:
+        line 14: 0
+
   public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
     flags: ACC_PUBLIC, ACC_STATIC
     Code:
       stack=3, locals=2, args_size=1
@@ -121,8 +136,9 @@ Constant pool:
         44: invokevirtual #15                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
         47: return
       LineNumberTable:
-        line 13: 0
-        line 14: 8
-        line 15: 14
-        line 16: 47
+        line 17: 0
+        line 18: 8
+        line 19: 14
+        line 20: 47
 }
+SourceFile: "Sample.java"

@@ -14,28 +14,28 @@ func NewClassReader(bytecode []byte) *ClassReader {
 	return &ClassReader{bytecode: bytecode}
 }
 
-func (this *ClassReader) ReadUint32() uint32 {
-	value := bigEndian.Uint32(this.bytecode[:4])
-	this.bytecode = this.bytecode[4:]
+func (cr *ClassReader) ReadUint32() uint32 {
+	value := bigEndian.Uint32(cr.bytecode[:4])
+	cr.bytecode = cr.bytecode[4:]
 	return value
 }
 
-func (this *ClassReader) ReadUint16() uint16 {
-	value := bigEndian.Uint16(this.bytecode[:2])
-	this.bytecode = this.bytecode[2:]
+func (cr *ClassReader) ReadUint16() uint16 {
+	value := bigEndian.Uint16(cr.bytecode[:2])
+	cr.bytecode = cr.bytecode[2:]
 	return value
 }
 
-func (this *ClassReader) ReadUint8() uint8 {
-	return uint8(this.ReadBytes(1)[0])
+func (cr *ClassReader) ReadUint8() uint8 {
+	return uint8(cr.ReadBytes(1)[0])
 }
 
-func (this *ClassReader) ReadBytes(len int) []byte {
-	bytes := this.bytecode[:len]
-	this.bytecode = this.bytecode[len:]
+func (cr *ClassReader) ReadBytes(len int) []byte {
+	bytes := cr.bytecode[:len]
+	cr.bytecode = cr.bytecode[len:]
 	return bytes
 }
 
-func (this *ClassReader) Length() int {
-	return len(this.bytecode)
+func (cr *ClassReader) Length() int {
+	return len(cr.bytecode)
 }
