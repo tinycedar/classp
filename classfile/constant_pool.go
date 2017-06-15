@@ -31,8 +31,11 @@ type ConstantClassInfo struct {
 
 func (this *ConstantClassInfo) ReadInfo(reader *ClassReader) {
 	this.nameIndex = reader.ReadUint16()
+	//fmt.Printf("Class\t\t#%d\n", this.nameIndex)
+}
 
-	fmt.Printf("Class\t\t#%d\n", this.nameIndex)
+func (this ConstantClassInfo) String(constantPool []ConstantPoolInfo) string {
+	return fmt.Sprint(constantPool[this.nameIndex])
 }
 
 type ConstantFieldrefInfo struct {
@@ -43,8 +46,13 @@ type ConstantFieldrefInfo struct {
 func (this *ConstantFieldrefInfo) ReadInfo(reader *ClassReader) {
 	this.classIndex = reader.ReadUint16()
 	this.nameAndTypeIndex = reader.ReadUint16()
+	//fmt.Printf("Fieldref\t\t#%d.#%d\n", this.classIndex, this.nameAndTypeIndex)
+}
 
-	fmt.Printf("Fieldref\t\t#%d.#%d\n", this.classIndex, this.nameAndTypeIndex)
+func (this ConstantFieldrefInfo) String(constantPool []ConstantPoolInfo) string {
+	class, _ := constantPool[this.classIndex].(*ConstantClassInfo)
+	nameAndType, _ := constantPool[this.nameAndTypeIndex].(*ConstantNameAndTypeInfo)
+	return fmt.Sprintf("%s.%s", class.String(constantPool), nameAndType.String(constantPool))
 }
 
 type ConstantMethodrefInfo struct {
@@ -55,8 +63,13 @@ type ConstantMethodrefInfo struct {
 func (this *ConstantMethodrefInfo) ReadInfo(reader *ClassReader) {
 	this.classIndex = reader.ReadUint16()
 	this.nameAndTypeIndex = reader.ReadUint16()
+	//fmt.Printf("Methodref\t#%d.#%d\n", this.classIndex, this.nameAndTypeIndex)
+}
 
-	fmt.Printf("Methodref\t#%d.#%d\n", this.classIndex, this.nameAndTypeIndex)
+func (this *ConstantMethodrefInfo) String(constantPool []ConstantPoolInfo) string {
+	class, _ := constantPool[this.classIndex].(*ConstantClassInfo)
+	nameAndType, _ := constantPool[this.nameAndTypeIndex].(*ConstantNameAndTypeInfo)
+	return fmt.Sprintf("%s.%s", class.String(constantPool), nameAndType.String(constantPool))
 }
 
 type ConstantInterfaceMethodrefInfo struct {
@@ -67,8 +80,7 @@ type ConstantInterfaceMethodrefInfo struct {
 func (this *ConstantInterfaceMethodrefInfo) ReadInfo(reader *ClassReader) {
 	this.classIndex = reader.ReadUint16()
 	this.nameAndTypeIndex = reader.ReadUint16()
-
-	fmt.Printf("InterfaceMethodref\t\t#%d.#%d\n", this.classIndex, this.nameAndTypeIndex)
+	//fmt.Printf("InterfaceMethodref\t\t#%d.#%d\n", this.classIndex, this.nameAndTypeIndex)
 }
 
 type ConstantStringInfo struct {
@@ -77,8 +89,14 @@ type ConstantStringInfo struct {
 
 func (this *ConstantStringInfo) ReadInfo(reader *ClassReader) {
 	this.stringIndex = reader.ReadUint16()
+	//fmt.Printf("String\t\t#%d\n", this.stringIndex)
+}
 
-	fmt.Printf("String\t\t#%d\n", this.stringIndex)
+func (this *ConstantStringInfo) String(constantPool []ConstantPoolInfo) string {
+	if cp, ok := constantPool[this.stringIndex].(*ConstantUtf8Info); ok {
+		return cp.String()
+	}
+	return ""
 }
 
 type ConstantIntegerInfo struct {
@@ -87,8 +105,7 @@ type ConstantIntegerInfo struct {
 
 func (this *ConstantIntegerInfo) ReadInfo(reader *ClassReader) {
 	this.bytes = reader.ReadUint32()
-
-	fmt.Printf("Integer\t\t%s\n", this.bytes)
+	//fmt.Printf("Integer\t\t%s\n", this.bytes)
 }
 
 type ConstantFloatInfo struct {
@@ -97,8 +114,7 @@ type ConstantFloatInfo struct {
 
 func (this *ConstantFloatInfo) ReadInfo(reader *ClassReader) {
 	this.bytes = reader.ReadUint32()
-
-	fmt.Printf("Float\t\t%s\n", this.bytes)
+	//fmt.Printf("Float\t\t%s\n", this.bytes)
 }
 
 type ConstantLongInfo struct {
@@ -120,7 +136,7 @@ type ConstantDoubleInfo struct {
 func (this *ConstantDoubleInfo) ReadInfo(reader *ClassReader) {
 	this.highBytes = reader.ReadUint32()
 	this.lowBytes = reader.ReadUint32()
-	fmt.Printf("Double\t\t%s%s\n", this.highBytes, this.lowBytes)
+	//fmt.Printf("Double\t\t%s%s\n", this.highBytes, this.lowBytes)
 }
 
 type ConstantNameAndTypeInfo struct {
@@ -131,7 +147,11 @@ type ConstantNameAndTypeInfo struct {
 func (this *ConstantNameAndTypeInfo) ReadInfo(reader *ClassReader) {
 	this.nameIndex = reader.ReadUint16()
 	this.descriptorIndex = reader.ReadUint16()
-	fmt.Printf("NameAndType\t#%d:#%d\n", this.nameIndex, this.descriptorIndex)
+	//fmt.Printf("NameAndType\t#%d:#%d\n", this.nameIndex, this.descriptorIndex)
+}
+
+func (this ConstantNameAndTypeInfo) String(constantPool []ConstantPoolInfo) string {
+	return fmt.Sprintf("%s:%s", constantPool[this.nameIndex], constantPool[this.descriptorIndex])
 }
 
 type ConstantUtf8Info struct {
@@ -140,7 +160,11 @@ type ConstantUtf8Info struct {
 
 func (this *ConstantUtf8Info) ReadInfo(reader *ClassReader) {
 	this.bytes = reader.ReadBytes(int(reader.ReadUint16()))
-	fmt.Printf("Utf8\t\t%s\n", this.bytes)
+	//fmt.Printf("Utf8\t\t%s\n", this.bytes)
+}
+
+func (this ConstantUtf8Info) String() string {
+	return fmt.Sprintf("%s", this.bytes)
 }
 
 type ConstantMethodHandleInfo struct {
@@ -151,7 +175,7 @@ type ConstantMethodHandleInfo struct {
 func (this *ConstantMethodHandleInfo) ReadInfo(reader *ClassReader) {
 	this.referenceKind = reader.ReadBytes(1)[0]
 	this.referenceIndex = reader.ReadUint16()
-	fmt.Printf("MethodHandle\t\t%s%s\n", this.referenceKind, this.referenceIndex)
+	//fmt.Printf("MethodHandle\t\t%s%s\n", this.referenceKind, this.referenceIndex)
 }
 
 type ConstantMethodTypeInfo struct {
@@ -160,7 +184,7 @@ type ConstantMethodTypeInfo struct {
 
 func (this *ConstantMethodTypeInfo) ReadInfo(reader *ClassReader) {
 	this.descriptorIndex = reader.ReadUint16()
-	fmt.Printf("MethodType\t%s\n", this.descriptorIndex)
+	//fmt.Printf("MethodType\t%s\n", this.descriptorIndex)
 }
 
 type ConstantInvokeDynamicInfo struct {
@@ -171,5 +195,5 @@ type ConstantInvokeDynamicInfo struct {
 func (this *ConstantInvokeDynamicInfo) ReadInfo(reader *ClassReader) {
 	this.bootstrapMethodAttrIndex = reader.ReadUint16()
 	this.nameAndTypeIndex = reader.ReadUint16()
-	fmt.Printf("InvokeDynamic\t\t%s%s\n", this.bootstrapMethodAttrIndex, this.nameAndTypeIndex)
+	//fmt.Printf("InvokeDynamic\t\t%s%s\n", this.bootstrapMethodAttrIndex, this.nameAndTypeIndex)
 }

@@ -25,7 +25,7 @@ ClassFile {
 }
 */
 type ClassFile struct {
-	size 	     int
+	size         int
 	magic        uint32
 	minorVersion uint16
 	majorVersion uint16
@@ -34,13 +34,17 @@ type ClassFile struct {
 	thisClass    uint16
 	superClass   uint16
 	interfaces   []uint16
-	fields       []fieldInfo
-	methods      []methodInfo
+	fields       []FieldInfo
+	methods      []MethodInfo
 	attributes   []AttributeInfo
 }
 
 func NewClassFile() *ClassFile {
 	return &ClassFile{}
+}
+
+func (cf *ClassFile) Methods() []MethodInfo {
+	return cf.methods
 }
 
 func (cf *ClassFile) Read(reader *ClassReader) {
@@ -58,7 +62,7 @@ func (cf *ClassFile) Read(reader *ClassReader) {
 	cf.readAttributes(reader)
 }
 
-func (cf *ClassFile) Print(){
+func (cf *ClassFile) Print() {
 	fmt.Printf("Size: %d bytes\n", cf.size)
 	fmt.Printf("magic: %x\n", cf.magic)
 	fmt.Printf("minor version: %d\n", cf.minorVersion)
@@ -67,6 +71,23 @@ func (cf *ClassFile) Print(){
 	fmt.Printf("accessFlags: %d\n", cf.accessFlags)
 	fmt.Printf("thisClass: #%d\n", cf.thisClass)
 	fmt.Printf("superClass: #%d\n", cf.superClass)
+
+	fmt.Println("**********************************************************")
+	for i, length := 1, len(cf.constantPool); i < length; i++ {
+		fmt.Printf(" #%2d = ", i)
+		//fmt.Println(cf.constantPool[i])
+		if cp, ok := cf.constantPool[i].(*ConstantClassInfo); ok {
+			fmt.Printf("Class\t\t\t\t#%d\t\t\t// %s", cp.nameIndex, cp.String(cf.constantPool))
+		} else if cp, ok := cf.constantPool[i].(*ConstantFieldrefInfo); ok {
+			fmt.Printf("Fieldref\t\t#%d.#%d\t\t// %s", cp.classIndex, cp.nameAndTypeIndex, cp.String(cf.constantPool))
+			//cf.constantPool[cp.classIndex]
+		} else if cp, ok := cf.constantPool[i].(*ConstantUtf8Info); ok {
+			fmt.Printf("Utf8\t\t\t\t\t%s", cp)
+		} else if cp, ok := cf.constantPool[i].(*ConstantNameAndTypeInfo); ok {
+			fmt.Printf("NameAndType\t\t\t#%d:#%d\t\t\t// %s", cp.nameIndex, cp.descriptorIndex, cp.String(cf.constantPool))
+		}
+		fmt.Println()
+	}
 }
 
 func (cf *ClassFile) readMagic(reader *ClassReader) {
@@ -83,10 +104,10 @@ func (cf *ClassFile) readMajorVersion(reader *ClassReader) {
 
 func (cf *ClassFile) readConstantPool(reader *ClassReader) {
 	cpInfoCount := reader.ReadUint16()
-	fmt.Printf("cp_info count: %d\n", cpInfoCount)
+	//fmt.Printf("cp_info count: %d\n", cpInfoCount)
 	cf.constantPool = make([]ConstantPoolInfo, cpInfoCount)
 	for i := uint16(1); i < cpInfoCount; i++ {
-		fmt.Printf(" #%2d = ", i)
+		//fmt.Printf(" #%2d = ", i)
 		switch reader.ReadUint8() {
 		case CONSTANT_Class:
 			cpInfo := &ConstantClassInfo{}
@@ -174,9 +195,9 @@ func (cf *ClassFile) readInterfaces(reader *ClassReader) {
 
 func (cf *ClassFile) readFieldInfo(reader *ClassReader) {
 	var fieldsCount = reader.ReadUint16()
-	cf.fields = make([]fieldInfo, fieldsCount)
+	cf.fields = make([]FieldInfo, fieldsCount)
 	for i := uint16(0); i < fieldsCount; i++ {
-		fieldInfo := fieldInfo{}
+		fieldInfo := FieldInfo{classFile: cf}
 		fieldInfo.ReadInfo(reader)
 		cf.fields[i] = fieldInfo
 	}
@@ -184,9 +205,9 @@ func (cf *ClassFile) readFieldInfo(reader *ClassReader) {
 
 func (cf *ClassFile) readMethodInfo(reader *ClassReader) {
 	methodsCount := reader.ReadUint16()
-	cf.methods = make([]methodInfo, methodsCount)
+	cf.methods = make([]MethodInfo, methodsCount)
 	for i := uint16(0); i < methodsCount; i++ {
-		methodInfo := methodInfo{classFile: cf}
+		methodInfo := MethodInfo{classFile: cf}
 		methodInfo.ReadInfo(reader)
 		cf.methods[i] = methodInfo
 	}
@@ -196,7 +217,7 @@ func (cf *ClassFile) readAttributes(reader *ClassReader) {
 	attributesCount := reader.ReadUint16()
 	cf.attributes = make([]AttributeInfo, attributesCount)
 	for i := uint16(0); i < attributesCount; i++ {
-		readAttributeInfo(reader)
+		cf.attributes[i] = readAttributeInfo(reader, cf)
 	}
 }
 
@@ -209,14 +230,15 @@ field_info {
     attribute_info attributes[attributes_count];
 }
 */
-type fieldInfo struct {
+type FieldInfo struct {
+	classFile       *ClassFile
 	accessFlags     uint16
 	nameIndex       uint16
 	descriptorIndex uint16
 	attributes      []AttributeInfo
 }
 
-func (f *fieldInfo) ReadInfo(reader *ClassReader) {
+func (f *FieldInfo) ReadInfo(reader *ClassReader) {
 	f.accessFlags = reader.ReadUint16()
 	f.nameIndex = reader.ReadUint16()
 	f.descriptorIndex = reader.ReadUint16()
@@ -224,7 +246,7 @@ func (f *fieldInfo) ReadInfo(reader *ClassReader) {
 	var attributesCount = reader.ReadUint16()
 	f.attributes = make([]AttributeInfo, attributesCount)
 	for i := uint16(0); i < attributesCount; i++ {
-		readAttributeInfo(reader)
+		f.attributes[i] = readAttributeInfo(reader, f.classFile)
 	}
 	fmt.Printf("================= FieldInfo end ==========================\t\t#%d\n", f.nameIndex)
 }
@@ -238,7 +260,7 @@ method_info {
     attribute_info attributes[attributes_count];
 }
 */
-type methodInfo struct {
+type MethodInfo struct {
 	classFile       *ClassFile
 	accessFlags     uint16
 	nameIndex       uint16
@@ -246,36 +268,69 @@ type methodInfo struct {
 	attributes      []AttributeInfo
 }
 
-func (m *methodInfo) ReadInfo(reader *ClassReader) {
+func (m *MethodInfo) Name() string {
+	name := m.classFile.constantPool[m.nameIndex]
+	if name, ok := name.(*ConstantUtf8Info); ok {
+		return name.String()
+	}
+	return ""
+}
+
+func (m *MethodInfo) Descriptor() string {
+	desc := m.classFile.constantPool[m.descriptorIndex]
+	if desc, ok := desc.(*ConstantUtf8Info); ok {
+		return desc.String()
+	}
+	return ""
+}
+
+func (m *MethodInfo) ConstantPool() []ConstantPoolInfo {
+	return m.classFile.constantPool
+}
+
+func (m *MethodInfo) CodeAttribute() *CodeAttribute {
+	for _, attr := range m.attributes {
+		if code, ok := attr.(*CodeAttribute); ok {
+			return code
+		}
+	}
+	return nil
+	//return CodeAttribute{}
+}
+
+func (m *MethodInfo) ReadInfo(reader *ClassReader) {
 	m.accessFlags = reader.ReadUint16()
 	m.nameIndex = reader.ReadUint16()
 	m.descriptorIndex = reader.ReadUint16()
 	var attributesCount = reader.ReadUint16()
 	m.attributes = make([]AttributeInfo, attributesCount)
-	fmt.Printf("================= MethodInfo start ==========================\t\t#%d\n", m.nameIndex)
+	//fmt.Printf("================= MethodInfo start ==========================\t\t#%d\n", m.nameIndex)
 	for i := uint16(0); i < attributesCount; i++ {
-		readAttributeInfo(reader)
+		m.attributes[i] = readAttributeInfo(reader, m.classFile)
 	}
-	fmt.Printf("================= MethodInfo end   ==========================\t\t#%d\n", m.nameIndex)
+	//fmt.Printf("================= MethodInfo end   ==========================\t\t#%d\n", m.nameIndex)
 }
 
-func readAttributeInfo(reader *ClassReader) {
+func readAttributeInfo(reader *ClassReader, cf *ClassFile) AttributeInfo {
 	attributeNameIndex := reader.ReadUint16()
 	attributeLength := reader.ReadUint32()
-	fmt.Printf("Code attributeLength\t\t%d\n", attributeLength)
-	//TODO attributeNameIndex
-	if attributeNameIndex == uint16(22) {
-		code := CodeAttribute{}
-		code.ReadInfo(reader)
-		fmt.Printf("Code ending....\t\t#%d\n", attributeNameIndex)
-	} else if attributeNameIndex == uint16(23) {
-		attribute := LineNumberTableAttribute{}
-		attribute.ReadInfo(reader)
-		fmt.Printf("LineNumberTable ending....\t\t#%d\n", attributeNameIndex)
-	} else if attributeNameIndex == uint16(31) {
-		//TODO add SourceFile attribute
-		fmt.Printf("SourceFile attribute\t\t#%d\n", attributeNameIndex)
-	} else {
-		fmt.Printf("Not a Code attribute\t\t#%d\n", attributeNameIndex)
+	//fmt.Printf("Code attributeLength\t\t%d\n", attributeLength)
+	if cp, ok := cf.constantPool[attributeNameIndex].(*ConstantUtf8Info); ok {
+		switch cp.String() {
+		case "Code":
+			code := &CodeAttribute{classFile: cf}
+			code.ReadInfo(reader)
+			return code
+		case "LineNumberTable":
+			attribute := &LineNumberTableAttribute{}
+			attribute.ReadInfo(reader)
+			return attribute
+		case "SourceFile":
+			//TODO add SourceFile attribute
+			//fmt.Printf("SourceFile attribute\t\t#%d\n", attributeNameIndex)
+		default:
+			fmt.Printf("invalid attribute index: %d, length: %d\n", attributeNameIndex, attributeLength)
+		}
 	}
+	return nil
 }

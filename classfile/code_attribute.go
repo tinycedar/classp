@@ -1,7 +1,7 @@
 package classfile
 
 import (
- "fmt"
+	"fmt"
 )
 
 /*
@@ -34,31 +34,30 @@ Code_attribute {
 }
 */
 type CodeAttribute struct {
-	// attributeNameIndex uint16
-	// attributeLength    uint32
-	maxStack   uint16
-	maxLocals  uint16
-	code       []uint8          //u4 code_length
-	exceptions []exceptionTable //u2 exception_table_length
+	classFile  *ClassFile
+	MaxStack   uint16
+	MaxLocals  uint16
+	Code       []uint8          //u4 code_length
+	Exceptions []exceptionTable //u2 exception_table_length
 	Attributes []AttributeInfo  //u2 attributes_count
 }
 
 func (this *CodeAttribute) ReadInfo(reader *ClassReader) {
-	this.maxStack = reader.ReadUint16()
-	this.maxLocals = reader.ReadUint16()
-	this.code = reader.ReadBytes(int(reader.ReadUint32()))
-	parseCode(this.code)
+	this.MaxStack = reader.ReadUint16()
+	this.MaxLocals = reader.ReadUint16()
+	this.Code = reader.ReadBytes(int(reader.ReadUint32()))
+	//parseCode(this.Code)
 	exceptionTableLength := reader.ReadUint16()
-	this.exceptions = make([]exceptionTable, exceptionTableLength)
+	this.Exceptions = make([]exceptionTable, exceptionTableLength)
 	for i := uint16(0); i < exceptionTableLength; i++ {
 		exceptionTable := exceptionTable{}
 		exceptionTable.ReadInfo(reader)
-		this.exceptions[i] = exceptionTable
+		this.Exceptions[i] = exceptionTable
 	}
 	attributesCount := reader.ReadUint16()
 	for i := uint16(0); i < attributesCount; i++ {
 		// fmt.Printf("attributes in attributes.....%d\n", reader.ReadUint16())
-		readAttributeInfo(reader)
+		readAttributeInfo(reader, this.classFile)
 	}
 }
 
@@ -126,7 +125,7 @@ type lineNumberTable struct {
 	lineNumber uint16
 }
 
-func (this *LineNumberTableAttribute) ReadInfo(reader *ClassReader) {
+func (this LineNumberTableAttribute) ReadInfo(reader *ClassReader) {
 	lineNumberTableLength := reader.ReadUint16()
 	this.lineNumberTables = make([]lineNumberTable, lineNumberTableLength)
 	for i := uint16(0); i < lineNumberTableLength; i++ {
