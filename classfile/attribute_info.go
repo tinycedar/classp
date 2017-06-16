@@ -132,3 +132,27 @@ func (this LineNumberTableAttribute) ReadInfo(reader *ClassReader) {
 		this.lineNumberTables[i] = lineNumberTable{reader.ReadUint16(), reader.ReadUint16()}
 	}
 }
+
+func readAttributeInfo(reader *ClassReader, cf *ClassFile) AttributeInfo {
+	attributeNameIndex := reader.ReadUint16()
+	attributeLength := reader.ReadUint32()
+	//fmt.Printf("Code attributeLength\t\t%d\n", attributeLength)
+	if cp, ok := cf.constantPool[attributeNameIndex].(*ConstantUtf8Info); ok {
+		switch cp.String() {
+		case "Code":
+			code := &CodeAttribute{classFile: cf}
+			code.ReadInfo(reader)
+			return code
+		case "LineNumberTable":
+			attribute := &LineNumberTableAttribute{}
+			attribute.ReadInfo(reader)
+			return attribute
+		case "SourceFile":
+			//TODO add SourceFile attribute
+			//fmt.Printf("SourceFile attribute\t\t#%d\n", attributeNameIndex)
+		default:
+			fmt.Printf("invalid attribute index: %d, length: %d\n", attributeNameIndex, attributeLength)
+		}
+	}
+	return nil
+}
