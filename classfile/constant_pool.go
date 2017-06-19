@@ -1,9 +1,5 @@
 package classfile
 
-import (
-	"fmt"
-)
-
 const (
 	CONSTANT_Class              = 7
 	CONSTANT_Fieldref           = 9
@@ -25,175 +21,46 @@ type ConstantPoolInfo interface {
 	ReadInfo(reader *ClassReader)
 }
 
-type ConstantClassInfo struct {
-	nameIndex uint16
-}
-
-func (this *ConstantClassInfo) ReadInfo(reader *ClassReader) {
-	this.nameIndex = reader.ReadUint16()
-	//fmt.Printf("Class\t\t#%d\n", this.nameIndex)
-}
-
-func (this ConstantClassInfo) String(constantPool []ConstantPoolInfo) string {
-	return fmt.Sprint(constantPool[this.nameIndex])
-}
-
-type ConstantFieldrefInfo struct {
-	classIndex       uint16
-	nameAndTypeIndex uint16
-}
-
-func (this *ConstantFieldrefInfo) ReadInfo(reader *ClassReader) {
-	this.classIndex = reader.ReadUint16()
-	this.nameAndTypeIndex = reader.ReadUint16()
-	//fmt.Printf("Fieldref\t\t#%d.#%d\n", this.classIndex, this.nameAndTypeIndex)
-}
-
-func (this ConstantFieldrefInfo) String(constantPool []ConstantPoolInfo) string {
-	class, _ := constantPool[this.classIndex].(*ConstantClassInfo)
-	nameAndType, _ := constantPool[this.nameAndTypeIndex].(*ConstantNameAndTypeInfo)
-	return fmt.Sprintf("%s.%s", class.String(constantPool), nameAndType.String(constantPool))
-}
-
-type ConstantMethodrefInfo struct {
-	classIndex       uint16
-	nameAndTypeIndex uint16
-}
-
-func (this *ConstantMethodrefInfo) ReadInfo(reader *ClassReader) {
-	this.classIndex = reader.ReadUint16()
-	this.nameAndTypeIndex = reader.ReadUint16()
-	//fmt.Printf("Methodref\t#%d.#%d\n", this.classIndex, this.nameAndTypeIndex)
-}
-
-func (this *ConstantMethodrefInfo) String(constantPool []ConstantPoolInfo) string {
-	class, _ := constantPool[this.classIndex].(*ConstantClassInfo)
-	nameAndType, _ := constantPool[this.nameAndTypeIndex].(*ConstantNameAndTypeInfo)
-	return fmt.Sprintf("%s.%s", class.String(constantPool), nameAndType.String(constantPool))
-}
-
-type ConstantInterfaceMethodrefInfo struct {
-	classIndex       uint16
-	nameAndTypeIndex uint16
-}
-
-func (this *ConstantInterfaceMethodrefInfo) ReadInfo(reader *ClassReader) {
-	this.classIndex = reader.ReadUint16()
-	this.nameAndTypeIndex = reader.ReadUint16()
-	//fmt.Printf("InterfaceMethodref\t\t#%d.#%d\n", this.classIndex, this.nameAndTypeIndex)
-}
-
-type ConstantStringInfo struct {
-	stringIndex uint16
-}
-
-func (this *ConstantStringInfo) ReadInfo(reader *ClassReader) {
-	this.stringIndex = reader.ReadUint16()
-	//fmt.Printf("String\t\t#%d\n", this.stringIndex)
-}
-
-func (this *ConstantStringInfo) String(constantPool []ConstantPoolInfo) string {
-	if cp, ok := constantPool[this.stringIndex].(*ConstantUtf8Info); ok {
-		return cp.String()
+func readConstantPool(reader *ClassReader) []ConstantPoolInfo {
+	constantPool := make([]ConstantPoolInfo, reader.ReadUint16())
+	for i := 1; i < len(constantPool); i++ {
+		var cpInfo ConstantPoolInfo
+		switch constType := reader.ReadUint8(); constType {
+		case CONSTANT_Class:
+			cpInfo = &ConstantClassInfo{}
+		case CONSTANT_Fieldref:
+			cpInfo = &ConstantFieldrefInfo{}
+		case CONSTANT_Methodref:
+			cpInfo = &ConstantMethodrefInfo{}
+		case CONSTANT_InterfaceMethodref:
+			cpInfo = &ConstantInterfaceMethodrefInfo{}
+		case CONSTANT_String:
+			cpInfo = &ConstantStringInfo{}
+		case CONSTANT_Integer:
+			cpInfo = &ConstantIntegerInfo{}
+		case CONSTANT_Float:
+			cpInfo = &ConstantFloatInfo{}
+		case CONSTANT_Long:
+			cpInfo = &ConstantLongInfo{}
+		case CONSTANT_Double:
+			cpInfo = &ConstantDoubleInfo{}
+		case CONSTANT_NameAndType:
+			cpInfo = &ConstantNameAndTypeInfo{}
+		case CONSTANT_Utf8:
+			cpInfo = &ConstantUtf8Info{}
+		case CONSTANT_MethodHandle:
+			cpInfo = &ConstantMethodHandleInfo{}
+		case CONSTANT_MethodType:
+			cpInfo = &ConstantMethodTypeInfo{}
+		case CONSTANT_InvokeDynamic:
+			cpInfo = &ConstantInvokeDynamicInfo{}
+		default:
+			break
+		}
+		if cpInfo != nil {
+			cpInfo.ReadInfo(reader)
+			constantPool[i] = cpInfo
+		}
 	}
-	return ""
-}
-
-type ConstantIntegerInfo struct {
-	bytes uint32
-}
-
-func (this *ConstantIntegerInfo) ReadInfo(reader *ClassReader) {
-	this.bytes = reader.ReadUint32()
-	//fmt.Printf("Integer\t\t%s\n", this.bytes)
-}
-
-type ConstantFloatInfo struct {
-	bytes uint32
-}
-
-func (this *ConstantFloatInfo) ReadInfo(reader *ClassReader) {
-	this.bytes = reader.ReadUint32()
-	//fmt.Printf("Float\t\t%s\n", this.bytes)
-}
-
-type ConstantLongInfo struct {
-	highBytes uint32
-	lowBytes  uint32
-}
-
-func (this *ConstantLongInfo) ReadInfo(reader *ClassReader) {
-	this.highBytes = reader.ReadUint32()
-	this.lowBytes = reader.ReadUint32()
-	fmt.Printf("Long\t\t%s%s\n", this.highBytes, this.lowBytes)
-}
-
-type ConstantDoubleInfo struct {
-	highBytes uint32
-	lowBytes  uint32
-}
-
-func (this *ConstantDoubleInfo) ReadInfo(reader *ClassReader) {
-	this.highBytes = reader.ReadUint32()
-	this.lowBytes = reader.ReadUint32()
-	//fmt.Printf("Double\t\t%s%s\n", this.highBytes, this.lowBytes)
-}
-
-type ConstantNameAndTypeInfo struct {
-	nameIndex       uint16
-	descriptorIndex uint16
-}
-
-func (this *ConstantNameAndTypeInfo) ReadInfo(reader *ClassReader) {
-	this.nameIndex = reader.ReadUint16()
-	this.descriptorIndex = reader.ReadUint16()
-	//fmt.Printf("NameAndType\t#%d:#%d\n", this.nameIndex, this.descriptorIndex)
-}
-
-func (this ConstantNameAndTypeInfo) String(constantPool []ConstantPoolInfo) string {
-	return fmt.Sprintf("%s:%s", constantPool[this.nameIndex], constantPool[this.descriptorIndex])
-}
-
-type ConstantUtf8Info struct {
-	bytes []byte //u2 length
-}
-
-func (this *ConstantUtf8Info) ReadInfo(reader *ClassReader) {
-	this.bytes = reader.ReadBytes(int(reader.ReadUint16()))
-	//fmt.Printf("Utf8\t\t%s\n", this.bytes)
-}
-
-func (this ConstantUtf8Info) String() string {
-	return fmt.Sprintf("%s", this.bytes)
-}
-
-type ConstantMethodHandleInfo struct {
-	referenceKind  uint8
-	referenceIndex uint16
-}
-
-func (this *ConstantMethodHandleInfo) ReadInfo(reader *ClassReader) {
-	this.referenceKind = reader.ReadBytes(1)[0]
-	this.referenceIndex = reader.ReadUint16()
-	//fmt.Printf("MethodHandle\t\t%s%s\n", this.referenceKind, this.referenceIndex)
-}
-
-type ConstantMethodTypeInfo struct {
-	descriptorIndex uint16
-}
-
-func (this *ConstantMethodTypeInfo) ReadInfo(reader *ClassReader) {
-	this.descriptorIndex = reader.ReadUint16()
-	//fmt.Printf("MethodType\t%s\n", this.descriptorIndex)
-}
-
-type ConstantInvokeDynamicInfo struct {
-	bootstrapMethodAttrIndex uint16
-	nameAndTypeIndex         uint16
-}
-
-func (this *ConstantInvokeDynamicInfo) ReadInfo(reader *ClassReader) {
-	this.bootstrapMethodAttrIndex = reader.ReadUint16()
-	this.nameAndTypeIndex = reader.ReadUint16()
-	//fmt.Printf("InvokeDynamic\t\t%s%s\n", this.bootstrapMethodAttrIndex, this.nameAndTypeIndex)
+	return constantPool
 }

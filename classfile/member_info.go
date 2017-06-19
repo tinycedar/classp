@@ -1,7 +1,7 @@
 package classfile
 
 /*
-method_info {
+field/method_info {
     u2             access_flags;
     u2             name_index;
     u2             descriptor_index;
@@ -9,42 +9,52 @@ method_info {
     attribute_info attributes[attributes_count];
 }
 */
-type MethodInfo struct {
-	classFile       *ClassFile
+type MemberInfo struct {
+	cp              []ConstantPoolInfo
 	accessFlags     uint16
 	nameIndex       uint16
 	descriptorIndex uint16
 	attributes      []AttributeInfo
 }
 
-func (m *MethodInfo) ReadInfo(reader *ClassReader) {
+func readMembers(reader *ClassReader, cp []ConstantPoolInfo) []MemberInfo {
+	members := make([]MemberInfo, reader.ReadUint16())
+	for i := 0; i < len(members); i++ {
+		member := MemberInfo{cp: cp}
+		member.ReadInfo(reader)
+		members[i] = member
+	}
+	return members
+}
+
+func (m *MemberInfo) ReadInfo(reader *ClassReader) {
 	m.accessFlags = reader.ReadUint16()
 	m.nameIndex = reader.ReadUint16()
 	m.descriptorIndex = reader.ReadUint16()
-	m.attributes = readAttributes(reader, m.classFile.constantPool)
+	m.attributes = readAttributes(reader, m.cp)
 }
 
-func (m *MethodInfo) Name() string {
-	name := m.classFile.constantPool[m.nameIndex]
+func (m *MemberInfo) Name() string {
+	name := m.cp[m.nameIndex]
 	if name, ok := name.(*ConstantUtf8Info); ok {
 		return name.String()
 	}
 	return ""
 }
 
-func (m *MethodInfo) Descriptor() string {
-	desc := m.classFile.constantPool[m.descriptorIndex]
+func (m *MemberInfo) Descriptor() string {
+	desc := m.cp[m.descriptorIndex]
 	if desc, ok := desc.(*ConstantUtf8Info); ok {
 		return desc.String()
 	}
 	return ""
 }
 
-func (m *MethodInfo) ConstantPool() []ConstantPoolInfo {
-	return m.classFile.constantPool
+func (m *MemberInfo) ConstantPool() []ConstantPoolInfo {
+	return m.cp
 }
 
-func (m *MethodInfo) CodeAttribute() *CodeAttribute {
+func (m *MemberInfo) CodeAttribute() *CodeAttribute {
 	for _, attr := range m.attributes {
 		if code, ok := attr.(*CodeAttribute); ok {
 			return code
