@@ -34,7 +34,7 @@ Code_attribute {
 }
 */
 type CodeAttribute struct {
-	classFile  *ClassFile
+	cp         []ConstantPoolInfo
 	MaxStack   uint16
 	MaxLocals  uint16
 	Code       []uint8          //u4 code_length
@@ -54,11 +54,7 @@ func (this *CodeAttribute) ReadInfo(reader *ClassReader) {
 		exceptionTable.ReadInfo(reader)
 		this.Exceptions[i] = exceptionTable
 	}
-	attributesCount := reader.ReadUint16()
-	for i := uint16(0); i < attributesCount; i++ {
-		// fmt.Printf("attributes in attributes.....%d\n", reader.ReadUint16())
-		readAttributeInfo(reader, this.classFile)
-	}
+	this.Attributes = readAttributes(reader, this.cp)
 }
 
 func parseCode(code []uint8) {
@@ -133,26 +129,39 @@ func (this LineNumberTableAttribute) ReadInfo(reader *ClassReader) {
 	}
 }
 
-func readAttributeInfo(reader *ClassReader, cf *ClassFile) AttributeInfo {
+func readAttributes(reader *ClassReader, cp []ConstantPoolInfo) []AttributeInfo {
+	attributes := make([]AttributeInfo, reader.ReadUint16())
+	for i := 0; i < len(attributes); i++ {
+		attributes[i] = readAttributeInfo(reader, cp)
+	}
+	return attributes
+}
+
+func readAttributeInfo(reader *ClassReader, cp []ConstantPoolInfo) AttributeInfo {
 	attributeNameIndex := reader.ReadUint16()
-	attributeLength := reader.ReadUint32()
+	_ = reader.ReadUint32() // attributeLength
 	//fmt.Printf("Code attributeLength\t\t%d\n", attributeLength)
-	if cp, ok := cf.constantPool[attributeNameIndex].(*ConstantUtf8Info); ok {
-		switch cp.String() {
-		case "Code":
-			code := &CodeAttribute{classFile: cf}
-			code.ReadInfo(reader)
-			return code
-		case "LineNumberTable":
-			attribute := &LineNumberTableAttribute{}
-			attribute.ReadInfo(reader)
-			return attribute
-		case "SourceFile":
-			//TODO add SourceFile attribute
-			//fmt.Printf("SourceFile attribute\t\t#%d\n", attributeNameIndex)
-		default:
-			fmt.Printf("invalid attribute index: %d, length: %d\n", attributeNameIndex, attributeLength)
+	if c, ok := cp[attributeNameIndex].(*ConstantUtf8Info); ok {
+		attrInfo := newAttributeInfo(c.String(), cp)
+		if attrInfo != nil {
+			attrInfo.ReadInfo(reader)
+			return attrInfo
 		}
+	}
+	return nil
+}
+
+func newAttributeInfo(attrName string, cp []ConstantPoolInfo) AttributeInfo {
+	switch attrName {
+	case "Code":
+		return &CodeAttribute{cp: cp}
+	case "LineNumberTable":
+		return &LineNumberTableAttribute{}
+	case "SourceFile":
+		//TODO add SourceFile attribute
+		//fmt.Printf("SourceFile attribute\t\t#%d\n", attributeNameIndex)
+	default:
+		//fmt.Printf("invalid attribute index: %d, length: %d\n", attributeNameIndex, attributeLength)
 	}
 	return nil
 }

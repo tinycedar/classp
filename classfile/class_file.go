@@ -160,11 +160,7 @@ func (cf *ClassFile) readMethodInfo(reader *ClassReader) {
 }
 
 func (cf *ClassFile) readAttributes(reader *ClassReader) {
-	attributesCount := reader.ReadUint16()
-	cf.attributes = make([]AttributeInfo, attributesCount)
-	for i := uint16(0); i < attributesCount; i++ {
-		cf.attributes[i] = readAttributeInfo(reader, cf)
-	}
+	cf.attributes = readAttributes(reader, cf.constantPool)
 }
 
 func (cf *ClassFile) Print() {

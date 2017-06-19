@@ -21,13 +21,7 @@ func (m *MethodInfo) ReadInfo(reader *ClassReader) {
 	m.accessFlags = reader.ReadUint16()
 	m.nameIndex = reader.ReadUint16()
 	m.descriptorIndex = reader.ReadUint16()
-	var attributesCount = reader.ReadUint16()
-	m.attributes = make([]AttributeInfo, attributesCount)
-	//fmt.Printf("================= MethodInfo start ==========================\t\t#%d\n", m.nameIndex)
-	for i := uint16(0); i < attributesCount; i++ {
-		m.attributes[i] = readAttributeInfo(reader, m.classFile)
-	}
-	//fmt.Printf("================= MethodInfo end   ==========================\t\t#%d\n", m.nameIndex)
+	m.attributes = readAttributes(reader, m.classFile.constantPool)
 }
 
 func (m *MethodInfo) Name() string {
