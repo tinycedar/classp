@@ -39,15 +39,17 @@ type ClassFile struct {
 	attributes   []AttributeInfo
 }
 
-func NewClassFile() *ClassFile {
-	return &ClassFile{}
+func Parse(bytes []byte) *ClassFile {
+	cf := &ClassFile{}
+	cf.read(NewClassReader(bytes))
+	return cf
 }
 
 func (cf *ClassFile) Methods() []MemberInfo {
 	return cf.methods
 }
 
-func (cf *ClassFile) Read(reader *ClassReader) {
+func (cf *ClassFile) read(reader *ClassReader) {
 	cf.size = reader.Length()
 	cf.magic = reader.ReadUint32()
 	cf.minorVersion = reader.ReadUint16()
@@ -57,15 +59,15 @@ func (cf *ClassFile) Read(reader *ClassReader) {
 	cf.thisClass = reader.ReadUint16()
 	cf.superClass = reader.ReadUint16()
 	cf.readInterfaces(reader)
+	//TODO from now on, we can speed up by run concurrently
 	cf.fields = readMembers(reader, cf.constantPool)
 	cf.methods = readMembers(reader, cf.constantPool)
 	cf.attributes = readAttributes(reader, cf.constantPool)
 }
 
 func (cf *ClassFile) readInterfaces(reader *ClassReader) {
-	var interfacesCount = reader.ReadUint16()
-	cf.interfaces = make([]uint16, interfacesCount)
-	for i := uint16(0); i < interfacesCount; i++ {
+	cf.interfaces = make([]uint16, reader.ReadUint16())
+	for i := 0; i < len(cf.interfaces); i++ {
 		cf.interfaces[i] = reader.ReadUint16()
 		fmt.Printf("interface: #%d\n", cf.interfaces[i])
 	}

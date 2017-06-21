@@ -24,43 +24,46 @@ type ConstantPoolInfo interface {
 func readConstantPool(reader *ClassReader) []ConstantPoolInfo {
 	constantPool := make([]ConstantPoolInfo, reader.ReadUint16())
 	for i := 1; i < len(constantPool); i++ {
-		var cpInfo ConstantPoolInfo
-		switch constType := reader.ReadUint8(); constType {
-		case CONSTANT_Class:
-			cpInfo = &ConstantClassInfo{}
-		case CONSTANT_Fieldref:
-			cpInfo = &ConstantFieldrefInfo{}
-		case CONSTANT_Methodref:
-			cpInfo = &ConstantMethodrefInfo{}
-		case CONSTANT_InterfaceMethodref:
-			cpInfo = &ConstantInterfaceMethodrefInfo{}
-		case CONSTANT_String:
-			cpInfo = &ConstantStringInfo{}
-		case CONSTANT_Integer:
-			cpInfo = &ConstantIntegerInfo{}
-		case CONSTANT_Float:
-			cpInfo = &ConstantFloatInfo{}
-		case CONSTANT_Long:
-			cpInfo = &ConstantLongInfo{}
-		case CONSTANT_Double:
-			cpInfo = &ConstantDoubleInfo{}
-		case CONSTANT_NameAndType:
-			cpInfo = &ConstantNameAndTypeInfo{}
-		case CONSTANT_Utf8:
-			cpInfo = &ConstantUtf8Info{}
-		case CONSTANT_MethodHandle:
-			cpInfo = &ConstantMethodHandleInfo{}
-		case CONSTANT_MethodType:
-			cpInfo = &ConstantMethodTypeInfo{}
-		case CONSTANT_InvokeDynamic:
-			cpInfo = &ConstantInvokeDynamicInfo{}
-		default:
-			break
-		}
+		cpInfo := newConstantPoolInfo(reader.ReadUint8())
 		if cpInfo != nil {
 			cpInfo.ReadInfo(reader)
 			constantPool[i] = cpInfo
 		}
 	}
 	return constantPool
+}
+
+func newConstantPoolInfo(constType uint8) ConstantPoolInfo {
+	switch constType {
+	case CONSTANT_Class:
+		return &ConstantClassInfo{}
+	case CONSTANT_Fieldref:
+		return &ConstantFieldrefInfo{}
+	case CONSTANT_Methodref:
+		return &ConstantMethodrefInfo{}
+	case CONSTANT_InterfaceMethodref:
+		return &ConstantInterfaceMethodrefInfo{}
+	case CONSTANT_String:
+		return &ConstantStringInfo{}
+	case CONSTANT_Integer:
+		return &ConstantIntegerInfo{}
+	case CONSTANT_Float:
+		return &ConstantFloatInfo{}
+	case CONSTANT_Long:
+		return &ConstantLongInfo{}
+	case CONSTANT_Double:
+		return &ConstantDoubleInfo{}
+	case CONSTANT_NameAndType:
+		return &ConstantNameAndTypeInfo{}
+	case CONSTANT_Utf8:
+		return &ConstantUtf8Info{}
+	case CONSTANT_MethodHandle:
+		return &ConstantMethodHandleInfo{}
+	case CONSTANT_MethodType:
+		return &ConstantMethodTypeInfo{}
+	case CONSTANT_InvokeDynamic:
+		return &ConstantInvokeDynamicInfo{}
+	default:
+		return nil
+	}
 }

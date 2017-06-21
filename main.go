@@ -12,7 +12,6 @@ func main() {
 		log.Fatal("Error reading class file")
 	}
 
-	cf := classfile.NewClassFile()
-	cf.Read(classfile.NewClassReader(bytes))
+	cf := classfile.Parse(bytes)
 	cf.Print()
 }

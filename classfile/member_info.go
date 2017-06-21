@@ -20,18 +20,14 @@ type MemberInfo struct {
 func readMembers(reader *ClassReader, cp []ConstantPoolInfo) []MemberInfo {
 	members := make([]MemberInfo, reader.ReadUint16())
 	for i := 0; i < len(members); i++ {
-		member := MemberInfo{cp: cp}
-		member.ReadInfo(reader)
-		members[i] = member
+		members[i] = MemberInfo{
+			cp,
+			reader.ReadUint16(),
+			reader.ReadUint16(),
+			reader.ReadUint16(),
+			readAttributes(reader, cp)}
 	}
 	return members
-}
-
-func (m *MemberInfo) ReadInfo(reader *ClassReader) {
-	m.accessFlags = reader.ReadUint16()
-	m.nameIndex = reader.ReadUint16()
-	m.descriptorIndex = reader.ReadUint16()
-	m.attributes = readAttributes(reader, m.cp)
 }
 
 func (m *MemberInfo) Name() string {
