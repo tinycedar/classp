@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/tinycedar/class-parser/classfile"
+	"github.com/tinycedar/classp/classfile"
 	"io/ioutil"
 	"log"
 )
