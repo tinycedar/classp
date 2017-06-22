@@ -1,2 +1,2 @@
-# class-parser
-Java class file parser for analysis
+# classp
+Java class file parser plays the same role as "javap" command
