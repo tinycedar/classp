@@ -99,4 +99,5 @@ func (cf *ClassFile) Print() {
 		}
 		fmt.Println()
 	}
+	fmt.Println("Add support for travis")
 }
