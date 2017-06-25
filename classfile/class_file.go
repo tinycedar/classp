@@ -29,7 +29,7 @@ type ClassFile struct {
 	magic        uint32
 	minorVersion uint16
 	majorVersion uint16
-	constantPool []ConstantPoolInfo
+	constantPool ConstantPool
 	accessFlags  uint16
 	thisClass    uint16
 	superClass   uint16

@@ -15,7 +15,7 @@ type AttributeInfo interface {
 	ReadInfo(reader *ClassReader)
 }
 
-func readAttributes(reader *ClassReader, cp []ConstantPoolInfo) []AttributeInfo {
+func readAttributes(reader *ClassReader, cp ConstantPool) []AttributeInfo {
 	attributes := make([]AttributeInfo, reader.ReadUint16())
 	for i := 0; i < len(attributes); i++ {
 		attributes[i] = readAttributeInfo(reader, cp)
@@ -23,7 +23,7 @@ func readAttributes(reader *ClassReader, cp []ConstantPoolInfo) []AttributeInfo 
 	return attributes
 }
 
-func readAttributeInfo(reader *ClassReader, cp []ConstantPoolInfo) AttributeInfo {
+func readAttributeInfo(reader *ClassReader, cp ConstantPool) AttributeInfo {
 	attributeNameIndex := reader.ReadUint16()
 	_ = reader.ReadUint32() // attributeLength
 	//fmt.Printf("Code attributeLength\t\t%d\n", attributeLength)
@@ -37,7 +37,7 @@ func readAttributeInfo(reader *ClassReader, cp []ConstantPoolInfo) AttributeInfo
 	return nil
 }
 
-func newAttributeInfo(attrName string, cp []ConstantPoolInfo) AttributeInfo {
+func newAttributeInfo(attrName string, cp ConstantPool) AttributeInfo {
 	switch attrName {
 	case "Code":
 		return &CodeAttribute{cp: cp}

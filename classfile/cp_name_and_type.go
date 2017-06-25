@@ -13,6 +13,6 @@ func (this *ConstantNameAndTypeInfo) ReadInfo(reader *ClassReader) {
 	//fmt.Printf("NameAndType\t#%d:#%d\n", this.nameIndex, this.descriptorIndex)
 }
 
-func (this ConstantNameAndTypeInfo) String(constantPool []ConstantPoolInfo) string {
+func (this ConstantNameAndTypeInfo) String(constantPool ConstantPool) string {
 	return fmt.Sprintf("%s:%s", constantPool[this.nameIndex], constantPool[this.descriptorIndex])
 }

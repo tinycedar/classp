@@ -17,11 +17,13 @@ const (
 	CONSTANT_InvokeDynamic      = 18
 )
 
-type ConstantPoolInfo interface {
-	ReadInfo(reader *ClassReader)
+type ConstantPool []ConstantPoolInfo
+
+func (p ConstantPool) GetConstantInfo(index uint16) ConstantPoolInfo {
+	return p[index]
 }
 
-func readConstantPool(reader *ClassReader) []ConstantPoolInfo {
+func readConstantPool(reader *ClassReader) ConstantPool {
 	constantPool := make([]ConstantPoolInfo, reader.ReadUint16())
 	for i := 1; i < len(constantPool); i++ {
 		cpInfo := newConstantPoolInfo(reader.ReadUint8())
@@ -31,6 +33,10 @@ func readConstantPool(reader *ClassReader) []ConstantPoolInfo {
 		}
 	}
 	return constantPool
+}
+
+type ConstantPoolInfo interface {
+	ReadInfo(reader *ClassReader)
 }
 
 func newConstantPoolInfo(constType uint8) ConstantPoolInfo {

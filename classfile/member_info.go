@@ -10,14 +10,14 @@ field/method_info {
 }
 */
 type MemberInfo struct {
-	cp              []ConstantPoolInfo
+	cp              ConstantPool
 	accessFlags     uint16
 	nameIndex       uint16
 	descriptorIndex uint16
 	attributes      []AttributeInfo
 }
 
-func readMembers(reader *ClassReader, cp []ConstantPoolInfo) []MemberInfo {
+func readMembers(reader *ClassReader, cp ConstantPool) []MemberInfo {
 	members := make([]MemberInfo, reader.ReadUint16())
 	for i := 0; i < len(members); i++ {
 		members[i] = MemberInfo{
@@ -46,7 +46,7 @@ func (m *MemberInfo) Descriptor() string {
 	return ""
 }
 
-func (m *MemberInfo) ConstantPool() []ConstantPoolInfo {
+func (m *MemberInfo) ConstantPool() ConstantPool {
 	return m.cp
 }
 

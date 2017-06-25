@@ -9,7 +9,7 @@ func (this *ConstantStringInfo) ReadInfo(reader *ClassReader) {
 	//fmt.Printf("String\t\t#%d\n", this.stringIndex)
 }
 
-func (this *ConstantStringInfo) String(constantPool []ConstantPoolInfo) string {
+func (this *ConstantStringInfo) String(constantPool ConstantPool) string {
 	if cp, ok := constantPool[this.stringIndex].(*ConstantUtf8Info); ok {
 		return cp.String()
 	}

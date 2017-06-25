@@ -11,6 +11,6 @@ func (this *ConstantClassInfo) ReadInfo(reader *ClassReader) {
 	//fmt.Printf("Class\t\t#%d\n", this.nameIndex)
 }
 
-func (this ConstantClassInfo) String(constantPool []ConstantPoolInfo) string {
+func (this ConstantClassInfo) String(constantPool ConstantPool) string {
 	return fmt.Sprint(constantPool[this.nameIndex])
 }

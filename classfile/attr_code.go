@@ -21,7 +21,7 @@ Code_attribute {
 }
 */
 type CodeAttribute struct {
-	cp         []ConstantPoolInfo
+	cp         ConstantPool
 	MaxStack   uint16
 	MaxLocals  uint16
 	Code       []uint8          //u4 code_length
