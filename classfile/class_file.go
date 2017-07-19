@@ -62,7 +62,6 @@ func (cf *ClassFile) readInterfaces(reader *ClassReader) {
 	cf.interfaces = make([]uint16, reader.ReadUint16())
 	for i := 0; i < len(cf.interfaces); i++ {
 		cf.interfaces[i] = reader.ReadUint16()
-		fmt.Printf("interface: #%d\n", cf.interfaces[i])
 	}
 }
 
@@ -85,16 +84,18 @@ func (cf *ClassFile) Print() {
 		fmt.Printf(" #%2d = ", i)
 		//fmt.Println(cf.constantPool[i])
 		if cp, ok := cf.constantPool[i].(*ConstantClassInfo); ok {
-			fmt.Printf("Class\t\t\t\t#%d\t\t\t// %s", cp.nameIndex, cp.String(cf.constantPool))
+			fmt.Printf("Class\t\t#%d\t\t\t// %s", cp.nameIndex, cp.String(cf.constantPool))
 		} else if cp, ok := cf.constantPool[i].(*ConstantFieldrefInfo); ok {
-			fmt.Printf("Fieldref\t\t#%d.#%d\t\t// %s", cp.classIndex, cp.nameAndTypeIndex, cp.String(cf.constantPool))
-			//cf.constantPool[cp.classIndex]
+			fmt.Printf("Fieldref\t\t#%d.#%d\t\t\t// %s", cp.classIndex, cp.nameAndTypeIndex, cp.String(cf.constantPool))
+		} else if cp, ok := cf.constantPool[i].(*ConstantMethodrefInfo); ok {
+			fmt.Printf("Methodref\t#%d.#%d\t\t\t// %s", cp.classIndex, cp.nameAndTypeIndex, cp.String(cf.constantPool))
 		} else if cp, ok := cf.constantPool[i].(*ConstantUtf8Info); ok {
-			fmt.Printf("Utf8\t\t\t\t\t%s", cp)
+			fmt.Printf("Utf8\t\t%s", cp.String())
+		} else if cp, ok := cf.constantPool[i].(*ConstantStringInfo); ok {
+			fmt.Printf("String\t\t#%d\t\t\t// %s", cp.stringIndex, cp.String(cf.constantPool))
 		} else if cp, ok := cf.constantPool[i].(*ConstantNameAndTypeInfo); ok {
-			fmt.Printf("NameAndType\t\t\t#%d:#%d\t\t\t// %s", cp.nameIndex, cp.descriptorIndex, cp.String(cf.constantPool))
+			fmt.Printf("NameAndType\t#%d:#%d\t\t\t// %s", cp.nameIndex, cp.descriptorIndex, cp.String(cf.constantPool))
 		}
 		fmt.Println()
 	}
-	fmt.Println("Add support for travis")
 }

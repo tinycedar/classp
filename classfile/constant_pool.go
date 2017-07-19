@@ -19,6 +19,10 @@ const (
 
 type ConstantPool []ConstantPoolInfo
 
+type ConstantPoolInfo interface {
+	ReadInfo(reader *ClassReader)
+}
+
 func (p ConstantPool) GetConstantInfo(index uint16) ConstantPoolInfo {
 	return p[index]
 }
@@ -33,10 +37,6 @@ func readConstantPool(reader *ClassReader) ConstantPool {
 		}
 	}
 	return constantPool
-}
-
-type ConstantPoolInfo interface {
-	ReadInfo(reader *ClassReader)
 }
 
 func newConstantPoolInfo(constType uint8) ConstantPoolInfo {
