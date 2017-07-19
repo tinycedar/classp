@@ -1,9 +1,5 @@
 package classfile
 
-import (
-//"fmt"
-)
-
 /*
 attribute_info {
     u2 attribute_name_index;
@@ -24,30 +20,23 @@ func readAttributes(reader *ClassReader, cp ConstantPool) []AttributeInfo {
 }
 
 func readAttributeInfo(reader *ClassReader, cp ConstantPool) AttributeInfo {
-	attributeNameIndex := reader.ReadUint16()
-	_ = reader.ReadUint32() // attributeLength
-	//fmt.Printf("Code attributeLength\t\t%d\n", attributeLength)
-	if c, ok := cp[attributeNameIndex].(*ConstantUtf8Info); ok {
-		attrInfo := newAttributeInfo(c.String(), cp)
+	attrNameIndex := reader.ReadUint16()
+	attrLength := reader.ReadUint32()
+	if c, ok := cp.GetConstantInfo(attrNameIndex).(*ConstantUtf8Info); ok {
+		var attrInfo AttributeInfo
+		switch attrName := c.String(); attrName {
+		case "Code":
+			attrInfo = &CodeAttribute{cp: cp}
+		case "LineNumberTable":
+			attrInfo = &LineNumberTableAttribute{}
+		default:
+			//TODO not implemented yet, just discard the bytes read
+			reader.ReadBytes(int(attrLength))
+		}
 		if attrInfo != nil {
 			attrInfo.ReadInfo(reader)
 			return attrInfo
 		}
-	}
-	return nil
-}
-
-func newAttributeInfo(attrName string, cp ConstantPool) AttributeInfo {
-	switch attrName {
-	case "Code":
-		return &CodeAttribute{cp: cp}
-	case "LineNumberTable":
-		return &LineNumberTableAttribute{}
-	case "SourceFile":
-		//TODO add SourceFile attribute
-		//fmt.Printf("SourceFile attribute\t\t#%d\n", attributeNameIndex)
-	default:
-		//fmt.Printf("invalid attribute index: %d, length: %d\n", attributeNameIndex, attributeLength)
 	}
 	return nil
 }

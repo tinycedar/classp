@@ -70,6 +70,6 @@ func newConstantPoolInfo(constType uint8) ConstantPoolInfo {
 	case CONSTANT_InvokeDynamic:
 		return &ConstantInvokeDynamicInfo{}
 	default:
-		return nil
+		panic("Invalid const type: ")
 	}
 }

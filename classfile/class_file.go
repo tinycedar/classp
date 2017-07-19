@@ -40,16 +40,8 @@ type ClassFile struct {
 }
 
 func Parse(bytes []byte) *ClassFile {
+	reader := NewClassReader(bytes)
 	cf := &ClassFile{}
-	cf.read(NewClassReader(bytes))
-	return cf
-}
-
-func (cf *ClassFile) Methods() []MemberInfo {
-	return cf.methods
-}
-
-func (cf *ClassFile) read(reader *ClassReader) {
 	cf.size = reader.Length()
 	cf.magic = reader.ReadUint32()
 	cf.minorVersion = reader.ReadUint16()
@@ -63,6 +55,7 @@ func (cf *ClassFile) read(reader *ClassReader) {
 	cf.fields = readMembers(reader, cf.constantPool)
 	cf.methods = readMembers(reader, cf.constantPool)
 	cf.attributes = readAttributes(reader, cf.constantPool)
+	return cf
 }
 
 func (cf *ClassFile) readInterfaces(reader *ClassReader) {
@@ -71,6 +64,10 @@ func (cf *ClassFile) readInterfaces(reader *ClassReader) {
 		cf.interfaces[i] = reader.ReadUint16()
 		fmt.Printf("interface: #%d\n", cf.interfaces[i])
 	}
+}
+
+func (cf *ClassFile) Methods() []MemberInfo {
+	return cf.methods
 }
 
 func (cf *ClassFile) Print() {
