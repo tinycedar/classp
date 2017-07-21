@@ -88,7 +88,7 @@ func (cf *ClassFile) Print() {
 		} else if cp, ok := cf.constantPool[i].(*ConstantFieldrefInfo); ok {
 			fmt.Printf("Fieldref\t\t#%d.#%d\t\t\t// %s", cp.classIndex, cp.nameAndTypeIndex, cp.String(cf.constantPool))
 		} else if cp, ok := cf.constantPool[i].(*ConstantMethodrefInfo); ok {
-			fmt.Printf("Methodref\t#%d.#%d\t\t\t// %s", cp.classIndex, cp.nameAndTypeIndex, cp.String(cf.constantPool))
+			fmt.Printf("Methodref\t#%d.#%d\t\t\t// %s", cp.classIndex, cp.nameAndTypeIndex, cp)
 		} else if cp, ok := cf.constantPool[i].(*ConstantUtf8Info); ok {
 			fmt.Printf("Utf8\t\t%s", cp.String())
 		} else if cp, ok := cf.constantPool[i].(*ConstantStringInfo); ok {

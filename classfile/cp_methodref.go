@@ -3,6 +3,7 @@ package classfile
 import "fmt"
 
 type ConstantMethodrefInfo struct {
+	cp               ConstantPool
 	classIndex       uint16
 	nameAndTypeIndex uint16
 }
@@ -13,8 +14,19 @@ func (this *ConstantMethodrefInfo) ReadInfo(reader *ClassReader) {
 	//fmt.Printf("Methodref\t#%d.#%d\n", this.classIndex, this.nameAndTypeIndex)
 }
 
-func (this *ConstantMethodrefInfo) String(constantPool ConstantPool) string {
-	class, _ := constantPool[this.classIndex].(*ConstantClassInfo)
-	nameAndType, _ := constantPool[this.nameAndTypeIndex].(*ConstantNameAndTypeInfo)
-	return fmt.Sprintf("%s.%s", class.String(constantPool), nameAndType.String(constantPool))
+func (this *ConstantMethodrefInfo) String() string {
+	class, _ := this.cp[this.classIndex].(*ConstantClassInfo)
+	nameAndType, _ := this.cp[this.nameAndTypeIndex].(*ConstantNameAndTypeInfo)
+	return fmt.Sprintf("%s.%s", class.String(this.cp), nameAndType.String(this.cp))
+}
+
+func (self *ConstantMethodrefInfo) ClassName() string {
+	return self.cp.getClassName(self.classIndex)
+}
+func (self *ConstantMethodrefInfo) NameAndDescriptor() (string, string) {
+	return self.cp.getNameAndType(self.nameAndTypeIndex)
+}
+
+func (self *ConstantMethodrefInfo) ConstantPool() ConstantPool {
+	return self.cp
 }

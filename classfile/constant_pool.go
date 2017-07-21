@@ -27,10 +27,27 @@ func (p ConstantPool) GetConstantInfo(index uint16) ConstantPoolInfo {
 	return p[index]
 }
 
+func (self ConstantPool) getNameAndType(index uint16) (string, string) {
+	ntInfo := self.GetConstantInfo(index).(*ConstantNameAndTypeInfo)
+	name := self.getUtf8(ntInfo.nameIndex)
+	_type := self.getUtf8(ntInfo.descriptorIndex)
+	return name, _type
+}
+
+func (self ConstantPool) getClassName(index uint16) string {
+	classInfo := self.GetConstantInfo(index).(*ConstantClassInfo)
+	return self.getUtf8(classInfo.nameIndex)
+}
+
+func (self ConstantPool) getUtf8(index uint16) string {
+	utf8Info := self.GetConstantInfo(index).(*ConstantUtf8Info)
+	return utf8Info.String()
+}
+
 func readConstantPool(reader *ClassReader) ConstantPool {
 	constantPool := make([]ConstantPoolInfo, reader.ReadUint16())
 	for i := 1; i < len(constantPool); i++ {
-		cpInfo := newConstantPoolInfo(reader.ReadUint8())
+		cpInfo := newConstantPoolInfo(reader.ReadUint8(), constantPool)
 		if cpInfo != nil {
 			cpInfo.ReadInfo(reader)
 			constantPool[i] = cpInfo
@@ -39,14 +56,14 @@ func readConstantPool(reader *ClassReader) ConstantPool {
 	return constantPool
 }
 
-func newConstantPoolInfo(constType uint8) ConstantPoolInfo {
+func newConstantPoolInfo(constType uint8, cp ConstantPool) ConstantPoolInfo {
 	switch constType {
 	case CONSTANT_Class:
 		return &ConstantClassInfo{}
 	case CONSTANT_Fieldref:
 		return &ConstantFieldrefInfo{}
 	case CONSTANT_Methodref:
-		return &ConstantMethodrefInfo{}
+		return &ConstantMethodrefInfo{cp: cp}
 	case CONSTANT_InterfaceMethodref:
 		return &ConstantInterfaceMethodrefInfo{}
 	case CONSTANT_String:
