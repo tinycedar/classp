@@ -1,6 +1,9 @@
 package classfile
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type ConstantIntegerInfo struct {
 	bytes uint32
@@ -18,6 +21,10 @@ type ConstantFloatInfo struct {
 func (this *ConstantFloatInfo) ReadInfo(reader *ClassReader) {
 	this.bytes = reader.ReadUint32()
 	//fmt.Printf("Float\t\t%s\n", this.bytes)
+}
+
+func (this *ConstantFloatInfo) Value() float32 {
+	return math.Float32frombits(this.bytes)
 }
 
 type ConstantLongInfo struct {
